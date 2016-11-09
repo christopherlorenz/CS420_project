@@ -13,10 +13,20 @@ for i in range(size):
   max_pivot_row = i
   max_pivot_col = i
   for j in range(i,size):
+    local_pivot_row = j
+    local_pivot_col = i
+    # Iterate on row j for columns k
     for k in range(i,size):
-      if abs(U[j,k]) > abs(U[max_pivot_row,max_pivot_col]):
-        max_pivot_row = j
-        max_pivot_col = k
+      if abs(U[j,k]) > abs(U[local_pivot_row,local_pivot_col]): local_pivot_col = k
+    # Iterate on column loca_pivot_col for rows k
+    for k in range(i,size):
+      if abs(U[k,local_pivot_col]) > abs(U[local_pivot_row,local_pivot_col]): local_pivot_row = k
+    # If the rook maximum was found
+    if local_pivot_row == j:
+      max_pivot_row = local_pivot_row
+      max_pivot_col = local_pivot_col
+      break
+
   # Row permutation
   temp_row = np.array(U[i])
   U[i] = U[max_pivot_row]
@@ -60,7 +70,8 @@ print P
 print
 print Q
 print
-print np.dot(np.dot(np.transpose(P),np.dot(L,U)),np.transpose(Q))
+A_check = np.dot(np.dot(np.transpose(P),np.dot(L,U)),np.transpose(Q))
+print A_check
 print
-print np.dot(np.dot(np.transpose(P),np.dot(L,U)),np.transpose(Q)) - A
+print A_check - A
 print
