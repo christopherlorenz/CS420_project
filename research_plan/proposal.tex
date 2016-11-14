@@ -1,0 +1,41 @@
+\documentclass[onecolumn]{article}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{breqn}
+\usepackage{listings}
+\usepackage{courier}
+\usepackage[margin=1.0in]{geometry}
+
+\setlength{\parskip}{1em}
+
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}
+%\lstset{framextopmargin=50pt,frame=bottomline}
+
+\date{\today}
+
+
+\begin{document}
+
+\author{Christopher Lorenz and Benjam\'in Villalonga Correa}
+\title{Project Research Plan}
+\maketitle
+
+The LU decomposition is a widely used linear algebra factorization of a matrix into a lower triangular matrix and an upper triangular one. It is very commonly used in numerical analysis packages for solving linear systems of equations, inverting matrices and computing matrix determinants. Algorithms that perform the LU decomposition use pivoting techniques in order to avoid floating point instabilities when encountering a division by a very small number, as well as increasing the accuracy of the calculations. Pivoting involves row and/or column permutations within a certain submatrix at each stage of the algorithm.
+
+In order to achieve large scale computations, a parallel implementation of such a factorization is necessary. Ideally, not only the computation will be performed across processors, but also the data will be distributed among them. This should both decrease communication times and increase the maximuum problem size that the software can solve.
+
+This project will focus only on the row-wise pivoting scheme that is typically used in many practical applications. This consistent baseline scheme will allow low level comparison of different parallel data implementations.
+
+
+vectorize
+omp vs mpi
+static dynamic -- load imbalance
+
+can generate matrix on each processor and do not need to bring it together 
+
+The algorithm will first be parallelized by distributing the data across all of the processors. Second, the maximum value of the submatrix will be found through a parallelized search and appropriate reduction operations. Finally the Gaussian elimination will be performed within each processor. Different data distribution, communication, and pivoting strategies will be implemented and compared.
+
+\end{document}
