@@ -3,6 +3,7 @@
 #include "sys/time.h"
 #include "math.h"
 
+
 int main(int argc, char ** argv)
 {
   
@@ -14,9 +15,12 @@ int main(int argc, char ** argv)
   double L[sizeof(A[0])/8][sizeof(A[0])/8];
   int P[sizeof(A[0])/8]; // Sparse matrix with only one 1 per row and col
                          // the position in the array is the row and value col
+  int Q[sizeof(A[0])/8]; // Sparse matrix with only one 1 per row and col
+                         // the position in the array is the row and value col
   for (int i=0; i<size; i++)
   {
     P[i] = i;
+    Q[i] = i;
     for (int j=0; j<size; j++)
     {
       if (i==j) L[i][j] = 1.0;
@@ -31,27 +35,41 @@ int main(int argc, char ** argv)
   {
 
     // Pivoting
-    int max_pivot = i;
-    for (int j=i+1; j<size; j++)
+    int max_row = i;
+    int max_col = i;
+    for (int j=i; j<size; j++)
     {
-      if (fabs(U[j][i]) > fabs(U[max_pivot][i])) max_pivot = j;
+      for (int k=i; k<size; k++)
+      {
+        if (fabs(U[j][k]) > fabs(U[max_row][max_col])) max_row = j, max_col = k;
+      }
     }
+    // Permute rows
     for (int j=0; j<size; j++)
     {
       double temp_U = U[i][j];
-      U[i][j] = U[max_pivot][j];
-      U[max_pivot][j] = temp_U;
+      U[i][j] = U[max_row][j];
+      U[max_row][j] = temp_U;
     }
     for (int j=0; j<i; j++)   // Very important the j<i!!!
     {
       double temp_L = L[i][j];
-      L[i][j] = L[max_pivot][j];
-      L[max_pivot][j] = temp_L;
+      L[i][j] = L[max_row][j];
+      L[max_row][j] = temp_L;
     }
-
     int temp_P = P[i];
-    P[i] = P[max_pivot];
-    P[max_pivot] = temp_P;
+    P[i] = P[max_row];
+    P[max_row] = temp_P;
+    // Permute cols
+    for (int j=0; j<size; j++)
+    {
+      double temp_U = U[j][i];
+      U[j][i] = U[j][max_col];
+      U[j][max_col] = temp_U;
+    } // Only permutation of cols in U, not L
+    int temp_Q = Q[i];
+    Q[i] = Q[max_col];
+    Q[max_col] = temp_Q;
     
     // And elimination
     for (int j=i+1; j<size; j++)
@@ -81,9 +99,11 @@ int main(int argc, char ** argv)
   } 
   // P^T * (L * U)
   int PT[sizeof(A[0])/8];
+  int QT[sizeof(A[0])/8];
   for (int i=0; i<size; i++)
   {
     PT[P[i]] = i;
+    QT[Q[i]] = i;
   }
   double PTM[sizeof(A[0])/8][sizeof(A[0])/8];
   for (int i=0; i<size; i++)
@@ -91,6 +111,14 @@ int main(int argc, char ** argv)
     for (int j=0; j<size; j++)
     {
       PTM[i][j] = M[PT[i]][j];
+    }
+  }
+  double PTMQT[sizeof(A[0])/8][sizeof(A[0])/8];
+  for (int i=0; i<size; i++)
+  {
+    for (int j=0; j<size; j++)
+    {
+      PTMQT[j][i] = PTM[j][QT[i]];
     }
   }
   
@@ -123,12 +151,12 @@ int main(int argc, char ** argv)
     }
     printf("\n");
   }
-  printf("PTM:\n");
+  printf("PTMQT:\n");
   for(int i=0; i<size; i++)
   {
     for(int j=0; j<size; j++)
     {
-      printf("%f\t", PTM[i][j]);
+      printf("%f\t", PTMQT[i][j]);
     }
     printf("\n");
   }
