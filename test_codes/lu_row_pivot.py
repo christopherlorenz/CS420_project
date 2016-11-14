@@ -22,15 +22,18 @@ for i in range(size):
     P[i,max_pivot] = 1
     P[max_pivot,i] = 1
   """
+  # Finding maximum value of columng i
   max_pivot = i
   for j in range(i+1,size):
     if abs(U[j,i]) > abs(U[max_pivot,i]): max_pivot = j
+  # Permuting
   temp_row = np.array(U[i])
   U[i] = U[max_pivot]
   U[max_pivot] = temp_row
   temp_row = np.array(L[i,0:i])
   L[i,0:i] = L[max_pivot,0:i]
   L[max_pivot,0:i] = temp_row
+  # Computing new combined permutation matrix
   P_new = np.eye(size)
   P_new[i,i] = 0
   P_new[max_pivot,max_pivot] = 0
